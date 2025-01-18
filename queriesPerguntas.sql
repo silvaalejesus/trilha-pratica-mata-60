@@ -191,21 +191,29 @@ SELECT DISTINCT f.cnpj_forn
 FROM tbl_fornecedor f
 JOIN tbl_estabelecimento e ON f.cidade_forn = e.cidade_estab;
 
--- 15. : Qual é a soma total de itens comprados de cada produto em todos os estabelecimentos?
-SELECT p.nm_prod, SUM(CAST(v.itens_comprados AS INT)) AS total_itens
-FROM tbl_vender_distribuir v
-JOIN tbl_produto p ON v.cp_id_produto = p.cp_id_produto
-GROUP BY p.nm_prod;
+-- 15. : Quantos itens foram vendidos por cada estabelecimento, considerando apenas vendas realizadas no último mês?
+SELECT e.nome_estab AS estabelecimento, SUM(ARRAY_LENGTH(vd.itens_comprados, 1)) AS total_itens_vendidos
+FROM tbl_vender_distribuir vd
+JOIN tbl_estabelecimento e ON vd.cp_cod_estab = e.cp_cod_estab
+WHERE vd.data_venda >= CURRENT_DATE - INTERVAL '1 MONTH'
+GROUP BY e.nome_estab
+ORDER BY total_itens_vendidos DESC;
+
 
 -- Complexas
 
--- 1. Quais são os cinco produtos mais vendidos em termos de itens comprados?
-SELECT p.nm_prod, SUM(CAST(v.itens_comprados AS INT)) AS total_itens
-FROM tbl_vender_distribuir v
-JOIN tbl_produto p ON v.cp_id_produto = p.cp_id_produto
-GROUP BY p.nm_prod
-ORDER BY total_itens DESC
-LIMIT 5;
+-- 1. Quais são os produtos mais vendidos e qual estabelecimento liderou as vendas desses produtos, com seus respectivos preços médios de venda?
+WITH vendas_por_produto AS (
+    SELECT p.nome_produto, e.nome_estab AS maior_vendedor, SUM(ARRAY_LENGTH(vd.itens_comprados, 1)) AS total_itens_vendidos, AVG(vd.preco_venda) AS preco_medio
+    FROM tbl_vender_distribuir vd
+    JOIN tbl_produto p ON vd.cp_id_produto = p.cp_id_produto
+    JOIN tbl_estabelecimento e ON vd.cp_cod_estab = e.cp_cod_estab
+    GROUP BY p.nome_produto, e.nome_estab
+)
+SELECT nome_produto, maior_vendedor, total_itens_vendidos, preco_medio
+FROM vendas_por_produto
+ORDER BY total_itens_vendidos DESC LIMIT 5;
+
 
 -- 2. Quais fornecedores forneceram produtos para mais de três estabelecimentos distintos?
 SELECT f.cp_cod_forn, COUNT(DISTINCT v.cp_cod_estab) AS total_estabelecimentos
@@ -300,10 +308,17 @@ WHERE p.data_vencimento < CURRENT_DATE
 GROUP BY e.nm_estab
 ORDER BY total_vencidos DESC;
 
--- 15. Quais dispositivos RFID estão associados ao maior número de itens vendidos?
-SELECT r.cp_id_dispositivo, SUM(CAST(v.itens_comprados AS INT)) AS total_itens_vendidos
-FROM tbl_rfid r
-JOIN tbl_produto p ON r.cp_id_dispositivo = p.ce_rfid
-JOIN tbl_vender_distribuir v ON p.cp_id_produto = v.cp_id_produto
-GROUP BY r.cp_id_dispositivo
-ORDER BY total_itens_vendidos DESC;
+-- 15. Quais são os três estabelecimentos com maior número de produtos distintos vendidos, e qual é a quantidade total de itens vendidos por eles?
+WITH vendas_distintas AS (
+    SELECT 
+        vd.cp_cod_estab, COUNT(DISTINCT vd.cp_id_produto) AS produtos_distintos, SUM(ARRAY_LENGTH(vd.itens_comprados, 1)) AS total_itens_vendidos
+    FROM tbl_vender_distribuir vd GROUP BY vd.cp_cod_estab
+)
+SELECT e.nm_estab AS estabelecimento, vd.produtos_distintos, vd.total_itens_vendidos
+FROM  vendas_distintas vd
+JOIN tbl_estabelecimento e ON vd.cp_cod_estab = e.cp_cod_estab
+ORDER BY vd.produtos_distintos DESC, vd.total_itens_vendidos DESC LIMIT 3;
+
+
+--ALTER TABLE tbl_vender_distribuir
+--ALTER COLUMN itens_comprados TYPE integer[] USING itens_comprados::integer[];

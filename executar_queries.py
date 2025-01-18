@@ -38,7 +38,7 @@ queries = [
    "SELECT cp_cod_forn, cidade_forn FROM tbl_fornecedor WHERE UF_forn = 'TI';",
    "SELECT nm_func, funcao_func FROM tbl_funcionario WHERE funcao_func = 'Funçao 1';",
    "SELECT p.nm_prod FROM tbl_fornece f JOIN tbl_produto p ON f.cp_id_produto = p.cp_id_produto WHERE f.cp_cod_forn = 1;",
-
+#intermediaria
    "SELECT ce_categoria_principal, COUNT(*) AS total_produtos FROM tbl_produto GROUP BY ce_categoria_principal;",
    "SELECT p.nm_prod, r.quantidade FROM tbl_produto p JOIN tbl_rfid r ON p.ce_rfid = r.cp_id_dispositivo;",
    "SELECT f.cp_cod_forn, COUNT(p.cp_id_produto) AS total_produtos FROM tbl_fornece f JOIN tbl_produto p ON f.cp_id_produto = p.cp_id_produto GROUP BY f.cp_cod_forn;",
@@ -53,9 +53,8 @@ queries = [
    "SELECT p.nm_prod FROM tbl_produto p LEFT JOIN tbl_fornece f ON p.cp_id_produto = f.cp_id_produto WHERE f.cp_id_produto IS NULL;",
    "SELECT e.UF_estab, COUNT(v.cp_id_produto) AS total_vendas FROM tbl_vender_distribuir v JOIN tbl_estabelecimento e ON v.cp_cod_estab = e.cp_cod_estab GROUP BY e.UF_estab;",
    "SELECT DISTINCT f.cnpj_forn FROM tbl_fornecedor f JOIN tbl_estabelecimento e ON f.cidade_forn = e.cidade_estab;",
-   "SELECT p.nm_prod, SUM(CAST(v.itens_comprados AS INT)) AS total_itens FROM tbl_vender_distribuir v JOIN tbl_produto p ON v.cp_id_produto = p.cp_id_produto GROUP BY p.nm_prod;",
-
-   "SELECT p.nm_prod, SUM(CAST(v.itens_comprados AS INT)) AS total_itens FROM tbl_vender_distribuir v JOIN tbl_produto p ON v.cp_id_produto = p.cp_id_produto GROUP BY p.nm_prod ORDER BY total_itens DESC LIMIT 5; ",
+   "SELECT e.nm_estab AS estabelecimento, SUM(ARRAY_LENGTH(vd.itens_comprados, 1)) AS total_itens_vendidos FROM tbl_vender_distribuir vd JOIN tbl_estabelecimento e ON vd.cp_cod_estab = e.cp_cod_estab WHERE vd.data_venda >= CURRENT_DATE - INTERVAL '1 MONTH' GROUP BY e.nm_estab ORDER BY total_itens_vendidos DESC;", 
+   #complexa
    "SELECT f.cp_cod_forn, COUNT(DISTINCT v.cp_cod_estab) AS total_estabelecimentos FROM tbl_fornece f JOIN tbl_vender_distribuir v ON f.cp_id_produto = v.cp_id_produto GROUP BY f.cp_cod_forn HAVING COUNT(DISTINCT v.cp_cod_estab) > 3;",
    "SELECT e.UF_estab, p.nm_prod, MAX(v.preco_venda) AS preco_maximo FROM tbl_vender_distribuir v JOIN tbl_produto p ON v.cp_id_produto = p.cp_id_produto JOIN tbl_estabelecimento e ON v.cp_cod_estab = e.cp_cod_estab GROUP BY e.UF_estab, p.nm_prod; ",
    "SELECT p.ce_categoria_principal, AVG(v.preco_venda) AS preco_medio FROM tbl_produto p JOIN tbl_vender_distribuir v ON p.cp_id_produto = v.cp_id_produto GROUP BY p.ce_categoria_principal;",
@@ -69,7 +68,8 @@ queries = [
    "SELECT c.nm_categoria, p.nm_prod, MAX(v.preco_venda) AS preco_maximo FROM tbl_categoria c JOIN tbl_produto p ON c.cp_cod_categoria = p.ce_categoria_principal JOIN tbl_vender_distribuir v ON p.cp_id_produto = v.cp_id_produto GROUP BY c.nm_categoria, p.nm_prod;",
    "SELECT f.cp_cod_forn, SUM(v.preco_venda) AS total_vendas FROM tbl_fornecedor f JOIN tbl_fornece fc ON f.cp_cod_forn = fc.cp_cod_forn JOIN tbl_vender_distribuir v ON fc.cp_id_produto = v.cp_id_produto GROUP BY f.cp_cod_forn; ",
    "SELECT e.nm_estab, COUNT(p.cp_id_produto) AS total_vencidos FROM tbl_estabelecimento e JOIN tbl_vender_distribuir v ON e.cp_cod_estab = v.cp_cod_estab JOIN tbl_produto p ON v.cp_id_produto = p.cp_id_produto WHERE p.data_vencimento < CURRENT_DATE GROUP BY e.nm_estab ORDER BY total_vencidos DESC;",
-   "SELECT r.cp_id_dispositivo, SUM(CAST(v.itens_comprados AS INT)) AS total_itens_vendidos FROM tbl_rfid r JOIN tbl_produto p ON r.cp_id_dispositivo = p.ce_rfid JOIN tbl_vender_distribuir v ON p.cp_id_produto = v.cp_id_produto GROUP BY r.cp_id_dispositivoORDER BY total_itens_vendidos DESC;"
+   "WITH vendas_por_produto AS (SELECT p.nm_prod, e.nm_estab AS maior_vendedor, SUM(ARRAY_LENGTH(vd.itens_comprados, 1)) AS total_itens_vendidos, AVG(vd.preco_venda) AS preco_medio FROM tbl_vender_distribuir vd JOIN tbl_produto p ON vd.cp_id_produto = p.cp_id_produto JOIN tbl_estabelecimento e ON vd.cp_cod_estab = e.cp_cod_estab GROUP BY p.nm_prod, e.nm_estab) SELECT nm_prod, maior_vendedor, total_itens_vendidos,preco_medio FROM vendas_por_produto ORDER BY total_itens_vendidos DESC LIMIT 5;",
+   "WITH vendas_distintas AS ( SELECT vd.cp_cod_estab, COUNT(DISTINCT vd.cp_id_produto) AS produtos_distintos, SUM(ARRAY_LENGTH(vd.itens_comprados, 1)) AS total_itens_vendidos FROM tbl_vender_distribuir vd GROUP BY vd.cp_cod_estab) SELECT e.nm_estab AS estabelecimento, vd.produtos_distintos, vd.total_itens_vendidos FROM  vendas_distintas vd JOIN tbl_estabelecimento e ON vd.cp_cod_estab = e.cp_cod_estab ORDER BY vd.produtos_distintos DESC, vd.total_itens_vendidos DESC LIMIT 3;"
 
 ]
 

@@ -1,0 +1,21 @@
+cp_cod_categoria,nm_categoria,min_distribuidor,max_distribuidor,min_container,max_container
+1,Categoria 1,24,55,19,44
+2,Categoria 2,37,52,15,23
+3,Categoria 3,24,71,11,29
+4,Categoria 4,23,61,18,26
+5,Categoria 5,36,83,12,47
+6,Categoria 6,25,65,17,50
+7,Categoria 7,19,90,6,26
+8,Categoria 8,46,60,8,34
+9,Categoria 9,47,100,18,21
+10,Categoria 10,14,73,16,45
+11,Categoria 11,47,52,8,43
+12,Categoria 12,36,88,16,50
+13,Categoria 13,12,80,7,24
+14,Categoria 14,33,69,14,34
+15,Categoria 15,17,99,13,29
+16,Categoria 16,26,59,14,39
+17,Categoria 17,46,93,19,38
+18,Categoria 18,13,94,17,50
+19,Categoria 19,24,64,16,25
+20,Categoria 20,22,82,11,32

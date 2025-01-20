@@ -1,0 +1,11 @@
+cp_id_produto,nm_prod,cd_ean_prod,ce_rfid,ce_categoria_principal,ce_categoria_secundaria,localizacao_prod,data_vencimento
+,Produto 1,459874648011,6,8,1,Prateleira 9,2025-09-13
+,Produto 2,108045964537,7,10,9,Prateleira 5,2025-03-05
+,Produto 3,698922966099,6,10,8,Prateleira 3,2025-08-11
+,Produto 4,137685024521,2,4,10,Prateleira 3,2025-06-24
+,Produto 5,169306658439,1,10,2,Prateleira 5,2025-05-01
+,Produto 6,970719136521,6,1,9,Prateleira 8,2025-08-28
+,Produto 7,369297367373,1,4,3,Prateleira 6,2025-03-02
+,Produto 8,160611772245,4,5,4,Prateleira 10,2025-09-26
+,Produto 9,818599910283,1,10,9,Prateleira 8,2025-06-23
+,Produto 10,845165277572,2,10,7,Prateleira 3,2025-07-17

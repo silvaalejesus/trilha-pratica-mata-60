@@ -5,9 +5,9 @@ import csv
 # Conexão com o banco de dados
 conn = psycopg2.connect(
     host="localhost",
-    database="trilhaPratica",
+    database="postgres",
     user="postgres",
-    password="senhaeu"
+    password="admin"
 )
 cur = conn.cursor()
 

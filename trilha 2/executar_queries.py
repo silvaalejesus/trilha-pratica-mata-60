@@ -1,19 +1,19 @@
-import psycopg2
-import time
 import csv
+import time
+import psycopg2  # Substitua pelo módulo do seu banco de dados, como mysql.connector para MySQL.
 
-# Conexão com o banco de dados
+# Configuração do banco de dados
 conn = psycopg2.connect(
     host="localhost",
-    database="postgres",
+    database="trilhaPratica",
     user="postgres",
-    password="admin"
+    password="senhaeu"
 )
 cur = conn.cursor()
 
-# Queries a serem executadas
+# Conjunto de queries
 queries = [
-   "SELECT nm_prod FROM tbl_produto;",
+     "SELECT nm_prod FROM tbl_produto;",
    "SELECT nm_prod, data_vencimento FROM tbl_produto;",
    "SELECT COUNT(*) AS total_produtos FROM tbl_produto;",
    "SELECT COUNT(*) AS total_produtos FROM tbl_produto;",
@@ -76,21 +76,32 @@ queries = [
 # Número de rodadas
 num_rodadas = 50
 
-# Arquivo CSV para salvar os tempos de execução
-with open('tempos_execucao.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['rodada', 'query', 'tempo_execucao'])
+# Nome do arquivo CSV
+output_file = "tempos_execucao.csv"
 
+# Abrir o arquivo CSV para escrita
+with open(output_file, 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile, delimiter=';')
+    writer.writerow(['Rodada', 'Query', 'Tempo de Execução'])
+
+    # Executar cada query 50 vezes
     for rodada in range(num_rodadas):
         for i, query in enumerate(queries):
-            inicio = time.time()
-            cur.execute(query)
-            fim = time.time()
-            tempo_execucao = fim - inicio
+            inicio = time.time()  # Registrar o tempo inicial
+            cur.execute(query)  # Executar a query
+            fim = time.time()  # Registrar o tempo final
 
-            writer.writerow([rodada + 1, i + 1, tempo_execucao])
-            print(f"Rodada {rodada + 1}, Query {i + 1}: {tempo_execucao:.4f} segundos")
+            # Calcular o tempo de execução e formatar com 4 casas decimais
+            tempo_execucao = round(fim - inicio, 6)
 
-# Fecha a conexão com o banco de dados
+            # Escrever no arquivo CSV (substituir ponto por vírgula no número)
+            writer.writerow([rodada + 1, i + 1, f"{tempo_execucao:.6f}".replace('.', ',') + " segundos"])
+
+            # Exibir no console
+            print(f"Rodada {rodada + 1}, Query {i + 1}: {tempo_execucao:.6f} segundos")
+
+# Fechar conexão com o banco de dados
 cur.close()
 conn.close()
+
+print(f"Resultados salvos em {output_file}")

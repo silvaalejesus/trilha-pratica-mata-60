@@ -4,12 +4,12 @@ from datetime import datetime, timedelta
 
 
 # --- Configuração da geração de dados ---
-num_produtos = 10
+num_produtos = 50
 num_dispositivos_rfid = 10
-num_categorias_principais = 10
-num_categorias_secundarias = 10
+num_categorias_principais = 25
+num_categorias_secundarias = 25
 num_estabelecimentos = 10
-num_funcionarios = 10
+num_funcionarios = 50
 num_fornecedores = 10
 num_fornece = 10
 num_repor = 10
